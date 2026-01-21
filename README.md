@@ -77,7 +77,31 @@ It demonstrates backend API design, secure approval flows, dependency handling, 
 - Handles empty selections and large exports gracefully.
 
 ---
+### 5) Problems Faced (and Fixes)
 
+PowerShell curl -X not working
+
+In PowerShell, curl is an alias of Invoke-WebRequest, so -X POST fails.
+
+Fix: Used Invoke-RestMethod for POST requests (seed and API checks).
+
+PptxGenJS module import issues (JSZip / ESM/CJS mismatch)
+
+Encountered errors like Cannot use import statement outside a module and export path issues.
+
+Fix: Kept backend as ESM ("type": "module") and used correct import PptxGenJS from "pptxgenjs".
+
+CORS issues between frontend and backend
+
+Browser blocked requests when frontend and backend ran on different ports/domains.
+
+Fix: Updated CORS configuration to support local development and easier deployment.
+
+Export widget capture dependency
+
+Initially export required visiting Risk Dashboard first (DOM widgets needed for capture).
+
+Fix: Export page renders selected widgets in a hidden area and captures from there.
 ## Setup & Run (Local)
 
 ### Backend
