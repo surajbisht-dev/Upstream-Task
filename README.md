@@ -77,31 +77,30 @@ It demonstrates backend API design, secure approval flows, dependency handling, 
 - Handles empty selections and large exports gracefully.
 
 ---
-### 5) Problems Faced (and Fixes)
+## Problems Faced (and Fixes)
 
-PowerShell curl -X not working
+### 1) PowerShell `curl -X` not working
+- **Issue:** In PowerShell, `curl` is an alias of `Invoke-WebRequest`, so commands like `curl -X POST ...` fail with parameter errors.
+- **Fix:** Used PowerShell-native commands instead:
+  - `Invoke-RestMethod -Method Post -Uri "http://localhost:5000/api/dev/seed"`
 
-In PowerShell, curl is an alias of Invoke-WebRequest, so -X POST fails.
+### 2) PptxGenJS module import issues (JSZip / ESM/CJS mismatch)
+- **Issue:** While generating PPT files, module errors appeared such as:
+  - `Cannot use import statement outside a module`
+  - package export path issues
+- **Fix:** Kept backend in ESM mode and used correct imports:
+  - Set `"type": "module"` in `package.json`
+  - Used: `import PptxGenJS from "pptxgenjs"`
 
-Fix: Used Invoke-RestMethod for POST requests (seed and API checks).
+### 3) CORS issues between frontend and backend
+- **Issue:** Browser blocked API calls when frontend and backend ran on different ports/domains.
+- **Fix:** Updated CORS configuration in backend to allow frontend requests during development and make deployment easier.
 
-PptxGenJS module import issues (JSZip / ESM/CJS mismatch)
+### 4) Export widget capture dependency
+- **Issue:** Initially, exporting required opening the Risk Dashboard first because widget DOM needed to exist for screenshot capture.
+- **Fix:** Export page now renders the selected widgets in a hidden/offscreen area and captures images from there, so export works directly.
 
-Encountered errors like Cannot use import statement outside a module and export path issues.
-
-Fix: Kept backend as ESM ("type": "module") and used correct import PptxGenJS from "pptxgenjs".
-
-CORS issues between frontend and backend
-
-Browser blocked requests when frontend and backend ran on different ports/domains.
-
-Fix: Updated CORS configuration to support local development and easier deployment.
-
-Export widget capture dependency
-
-Initially export required visiting Risk Dashboard first (DOM widgets needed for capture).
-
-Fix: Export page renders selected widgets in a hidden area and captures from there.
+---
 ## Setup & Run (Local)
 
 ### Backend
@@ -109,3 +108,10 @@ Fix: Export page renders selected widgets in a hidden area and captures from the
 cd backend
 npm install
 npm run dev
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+
