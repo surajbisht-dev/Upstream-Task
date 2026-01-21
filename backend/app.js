@@ -24,6 +24,12 @@ app.use(
   }),
 );
 
+// backend test
+app.use("/", (req, res, next) => {
+  res.send("Upstream Task Management Backend is running");
+  next();
+});
+
 // routes here listed
 app.use("/api", healthRoutes);
 app.use("/api/approvals", approvalRoutes);
