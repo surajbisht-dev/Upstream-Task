@@ -1,6 +1,8 @@
 import axios from "axios";
-import { API_BASE } from "./config";
+
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 export const api = axios.create({
-  baseURL: API_BASE,
+  baseURL,
 });
