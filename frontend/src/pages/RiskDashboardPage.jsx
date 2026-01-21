@@ -16,14 +16,13 @@ import {
 } from "recharts";
 
 import { loadJson, saveJson } from "../utils/storageUtil";
-import { widgetConfig } from "../utils/widgetIds";
 
 export default function RiskDashboardPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const [tasks, setTasks] = useState([]);
-  const [risks, setRisks] = useState([]);
+  const [risks, setRisks] = useState([]); // always array
 
   const [selectedWidgetIds, setSelectedWidgetIds] = useState(() =>
     loadJson("selectedWidgets", []),
@@ -39,6 +38,13 @@ export default function RiskDashboardPage() {
     });
   };
 
+  const normalizeRisks = (data) => {
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.value)) return data.value;
+    if (Array.isArray(data?.risks)) return data.risks;
+    return [];
+  };
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -49,10 +55,12 @@ export default function RiskDashboardPage() {
         api.get("/risks"),
       ]);
 
-      setTasks(tRes.data.tasks || []);
-      setRisks(rRes.data || []);
+      setTasks(tRes.data?.tasks || []);
+      setRisks(normalizeRisks(rRes.data));
     } catch (e) {
       setError(e?.response?.data?.message || "Failed to load dashboard data");
+      setTasks([]);
+      setRisks([]);
     } finally {
       setLoading(false);
     }
@@ -64,7 +72,7 @@ export default function RiskDashboardPage() {
 
   const riskMap = useMemo(() => {
     const m = new Map();
-    risks.forEach((r) => m.set(r.taskId, r));
+    (Array.isArray(risks) ? risks : []).forEach((r) => m.set(r.taskId, r));
     return m;
   }, [risks]);
 
@@ -93,7 +101,6 @@ export default function RiskDashboardPage() {
     return merged.map((t) => ({
       name: t.title.length > 12 ? t.title.slice(0, 12) + "..." : t.title,
       risk: t.riskScore,
-      fullTitle: t.title,
     }));
   }, [merged]);
 
@@ -109,9 +116,7 @@ export default function RiskDashboardPage() {
       <ErrorBox message={error} />
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div
-          id={widgetConfig.find((w) => w.id === "top5")?.domId || "widget-top5"}
-        >
+        <div id="widget-top5">
           <WidgetCard
             id="top5"
             title="Top 5 Riskiest Tasks"
@@ -136,20 +141,23 @@ export default function RiskDashboardPage() {
           </WidgetCard>
         </div>
 
-        <div
-          id={
-            widgetConfig.find((w) => w.id === "riskChart")?.domId ||
-            "widget-chart"
-          }
-        >
+        {/* Widget: Chart */}
+        <div id="widget-chart">
           <WidgetCard
             id="riskChart"
             title="Risk by Task (Bar Chart)"
             selected={selectedWidgetIds.includes("riskChart")}
             onToggle={toggleWidget}
           >
-            <div style={{ width: "100%", height: 260 }}>
-              <ResponsiveContainer>
+            <div
+              style={{
+                width: "100%",
+                height: 280,
+                minHeight: 280,
+                minWidth: 0,
+              }}
+            >
+              <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <XAxis dataKey="name" />
                   <YAxis />
@@ -164,13 +172,7 @@ export default function RiskDashboardPage() {
           </WidgetCard>
         </div>
 
-        <div
-          className="md:col-span-2"
-          id={
-            widgetConfig.find((w) => w.id === "rationales")?.domId ||
-            "widget-rationales"
-          }
-        >
+        <div className="md:col-span-2" id="widget-rationales">
           <WidgetCard
             id="rationales"
             title="All Task Risk Rationales"
