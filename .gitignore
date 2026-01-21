@@ -1,0 +1,48 @@
+# dependencies
+node_modules/
+
+# env
+.env
+.env.* 
+
+# logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# build
+dist/
+build/
+
+# jest coverage
+coverage/
+
+# temp
+tmp/
+temp/
+
+# -----------------------------
+# Generated export files (PPT / widgets / excel)
+# -----------------------------
+exports/
+# if you used a different folder name, add it here too:
+# storage/
+# uploads/
+
+# ignore common generated file types (extra safety)
+*.pptx
+*.ppt
+*.xlsx
+*.xls
+*.png
+*.jpg
+*.jpeg
+*.webp
